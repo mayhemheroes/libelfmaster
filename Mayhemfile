@@ -1,0 +1,5 @@
+project: rnshah9/libelfmaster
+target: libelfmaster
+
+cmds:
+  - cmd: /repo/utils/stripx @@
