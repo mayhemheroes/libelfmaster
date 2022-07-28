@@ -5,18 +5,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential
 
 COPY . /repo
 WORKDIR /repo
-RUN ./configure
+RUN ./configure --prefix=/install
 RUN make -j8
 RUN make install
 
 WORKDIR /repo/utils
 RUN gcc stripx.c -o stripx
 
-RUN mkdir -p /deps
-RUN ldd /repo/utils/stripx | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % sh -c 'cp % /deps;'
-
 FROM ubuntu:20.04 as package
-
-COPY --from=builder /deps /deps
-COPY --from=builder /repo/utils/stripx /repo/utils/stripx
-ENV LD_LIBRARY_PATH=/deps
+COPY --from=builder /install /install
+COPY --from=builder /repo/utils/stripx /

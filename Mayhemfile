@@ -2,4 +2,4 @@ project: libelfmaster
 target: stripx
 
 cmds:
-  - cmd: /repo/utils/stripx @@
+  - cmd: /stripx @@
