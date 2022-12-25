@@ -59,7 +59,8 @@ jobs:
       fail-fast: false
       matrix:
         mayhemfile:
-          - mayhem/Mayhemfile
+          - mayhem/Mayhemfile_elf_open_object
+          - mayhem/Mayhemfile_stripx
 
     steps:
       - uses: actions/checkout@v3
