@@ -1,0 +1,5 @@
+project: libelfmaster
+target: stripx
+
+cmds:
+  - cmd: /stripx @@
