@@ -9,7 +9,6 @@ RUN ./configure --prefix=/install
 RUN make -j8
 RUN make install
 
-RUN sed -i 's/bool elf_open_object/extern "C" bool elf_open_object/' /install/include/libelfmaster.h
 WORKDIR /repo/utils
 RUN gcc stripx.c -o stripx
 RUN clang++ /repo/mayhem/fuzz_elf_open_object.cpp -fsanitize=fuzzer,address -I /install/include/ /install/lib/libelfmaster.a -o /fuzz
