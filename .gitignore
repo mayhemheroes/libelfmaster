@@ -9,3 +9,4 @@ Makefile
 
 # No .build files
 *.build
+rlenv/mayhem/data/testsuite

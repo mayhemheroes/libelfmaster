@@ -1,0 +1,11 @@
+{
+  "workspace": "mayhemheroes",
+  "project": "libelfmaster",
+  "target": "stripx",
+  "run_id": "4",
+  "ci_url": "https://github.com:443/mayhemheroes/libelfmaster//actions/runs/4297041411",
+  "run_image_name": "ghcr.io/mayhemheroes/libelfmaster:master",
+  "run_image_with_digest": "ghcr.io/mayhemheroes/libelfmaster@sha256:e44102b92404f12f35e4eb69d6392245fd020e199e05559d1d479e515a3d6aa6",
+  "git_repo_url": "git@github.com:mayhemheroes/libelfmaster.git",
+  "git_revision": "9d3c01263d75ee1ac2965f49adca8ebfc40ee20d"
+}

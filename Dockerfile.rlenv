@@ -1,0 +1,114 @@
+# ============================================================================
+# RLENV Patch Playground - libelfmaster
+# Single-stage build for vulnerability patching workflow
+# ============================================================================
+
+# ============================================================================
+# 1. Base Image Selection
+# ============================================================================
+FROM --platform=linux/amd64 ubuntu:20.04
+
+# ============================================================================
+# 2. System Dependencies (merged from all stages)
+# ============================================================================
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    build-essential \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# REQUIRED: jq is used by validate.sh to parse metadata.json
+# build-essential includes: gcc, g++, make, libc-dev, dpkg-dev
+
+# ============================================================================
+# 3. Copy MTV Binary (REQUIRED - used by validate.sh)
+# ============================================================================
+COPY --from="us-east4-docker.pkg.dev/forallsecure-1/rlenv-staging/rlenv-mcp-static:latest" \
+     /rlenv/bin/mtv /rlenv/bin/mtv
+
+# MTV (Mayhem Test & Verify) is required for validation and crash triage
+
+# ============================================================================
+# 4. Language-Specific Setup
+# ============================================================================
+# C/C++ project - no special environment needed beyond build-essential
+
+# ============================================================================
+# 5. Copy Source Code (EARLY - source exists now)
+# ============================================================================
+COPY . /rlenv/source/libelfmaster/
+
+# This copies the entire repository to /rlenv/source/libelfmaster/
+
+# ============================================================================
+# 6. Make Source World-Writable (REQUIRED for non-root rebuilds)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# Why 777? Validation runs as UID 1000 (unprivileged user)
+# Must be able to modify source code and rebuild
+
+# ============================================================================
+# 7. Set Working Directory
+# ============================================================================
+WORKDIR /rlenv/source/libelfmaster/
+
+# All subsequent RUN commands execute from this directory
+
+# ============================================================================
+# 8. Install Language Dependencies
+# ============================================================================
+# No language-specific dependencies needed for C project
+
+# ============================================================================
+# 9. Build Application
+# ============================================================================
+RUN ./configure --prefix=/install
+RUN make -j8
+RUN make install
+
+# Build the stripx fuzzing target
+WORKDIR /rlenv/source/libelfmaster/utils
+RUN gcc stripx.c -o stripx
+
+# ============================================================================
+# 10. Copy Artifacts to Expected Locations
+# ============================================================================
+RUN cp /rlenv/source/libelfmaster/utils/stripx /stripx
+
+# ============================================================================
+# 11. Permission Management (REQUIRED)
+# ============================================================================
+# Target executable (rwxrw-rw-)
+RUN chmod 766 /stripx
+
+# Build output directories
+RUN chmod -R 777 /install 2>/dev/null || true
+RUN chmod -R 777 /root/.cache 2>/dev/null || true
+
+# ============================================================================
+# 12. Copy rlenv Directory (MUST BE NEAR END - doesn't exist yet!)
+# ============================================================================
+COPY rlenv /rlenv
+
+# CRITICAL: This directory doesn't exist when you create this Dockerfile
+# It's populated later by the `rlenv patch` command
+# That's why it must come AFTER source copy and build
+
+# ============================================================================
+# 13. Final Permission Fix (REQUIRED)
+# ============================================================================
+RUN chmod -R 777 /rlenv/source
+
+# Ensures source remains writable after rlenv directory copy
+
+# ============================================================================
+# 14. Set Entry Point
+# ============================================================================
+CMD ["/stripx"]
+
+# Use the same path as in Mayhemfile
+
+# ============================================================================
+# 15. Reset Working Directory
+# ============================================================================
+WORKDIR /
