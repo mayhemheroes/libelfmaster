@@ -8,6 +8,6 @@
   "run_image_with_digest": "ghcr.io/mayhemheroes/libelfmaster@sha256:e44102b92404f12f35e4eb69d6392245fd020e199e05559d1d479e515a3d6aa6",
   "git_repo_url": "git@github.com:mayhemheroes/libelfmaster.git",
   "git_revision": "9d3c01263d75ee1ac2965f49adca8ebfc40ee20d",
-  "target_executable": null,
+  "target_executable": "/stripx",
   "working_dir": ""
 }
