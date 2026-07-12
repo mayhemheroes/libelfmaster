@@ -1,0 +1,13 @@
+project: libelfmaster
+target: elf-open-object
+
+cmds:
+  # detect_leaks=0 is baked into the harness via __asan_default_options (Mayhem owns ASAN_OPTIONS):
+  # forensic-reconstruction allocations that aren't freed on partial-parse error paths would
+  # otherwise swamp the memory-safety findings. ASan + UBSan stay on and halting.
+  - cmd: /mayhem/fuzz_elf_open_object
+    libfuzzer: true
+
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/elf-open-object/testsuite
